@@ -150,6 +150,7 @@ export default class Everything extends Component {
         >
           <TextInput
             style={{ height: 40, borderColor: 'gray', borderWidth: 1, flex: 8 }}
+            placeholder="please enter your name"
             onChangeText={text => this.setState({ edittedName: text })}
             value={this.state.edittedName}
           />
@@ -305,6 +306,8 @@ export default class Everything extends Component {
       seed: item.UUID
     })
 
+    let textColor = me ? 'black' : 'white'
+
     return (
       <View
         key={item.UUID}
@@ -317,8 +320,12 @@ export default class Everything extends Component {
           backgroundColor: backgroundColor
         }}
       >
-        <Text>{item.name || item.UUID}</Text>
-        <Text>{addedToday}/{addedTotal}</Text>
+        <Text style={{ color: textColor, fontSize: 18 }}>
+          {item.name || item.UUID}
+        </Text>
+        <Text style={{ color: textColor, fontSize: 18 }}>
+          {addedToday}/{addedTotal}
+        </Text>
       </View>
     )
   }
@@ -350,13 +357,33 @@ export default class Everything extends Component {
         <Text style={{ padding: 10 }}>
           Scan anybody's code to join their group.
         </Text>
-
-        <Text
-          style={{ padding: 10, fontSize: 20 }}
-          onPress={() => this.setState({ showQr: false })}
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
         >
-          [ Go Back ]
-        </Text>
+          <Text
+            style={{ padding: 10, fontSize: 20 }}
+            onPress={() => this.setState({ showQr: false })}
+          >
+            [ Go Back ]
+          </Text>
+          <Text
+            style={{ padding: 10, fontSize: 20 }}
+            onPress={() => {
+              return this.query('changeGroup', 'no-uuid')
+                .then(this.getGroupState)
+                .then(() => {
+                  this.setState({ showQr: false })
+                })
+            }}
+          >
+            [ Leave Group ]
+          </Text>
+
+        </View>
 
         <TouchableOpacity onPress={() => this.setState({ showQr: false })} />
         <Camera
@@ -369,7 +396,7 @@ export default class Everything extends Component {
             return this.query('changeGroup', data.data)
               .then(this.getGroupState)
               .then(() => {
-                this.setState({ showCamera: false })
+                this.setState({ showQr: false })
               })
           }}
           aspect={Camera.constants.Aspect.fill}
