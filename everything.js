@@ -147,6 +147,8 @@ export default class Everything extends Component {
             borderWidth: 1,
             padding: 10
           }}
+          underlineColorAndroid="transparent"
+          autoFocus
           placeholder="please enter your name"
           onChangeText={text => this.setState({ edittedName: text })}
           onSubmitEditing={() => {

@@ -1,0 +1,3 @@
+WE DO NOT STORE YOUR CAMERA DATA
+
+we only use the camera data to scan for barcode, we do not send the actual picture anywhere.
