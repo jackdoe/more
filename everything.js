@@ -141,37 +141,30 @@ export default class Everything extends Component {
   renderMyName () {
     if (!stored.get('name') || this.state.editName) {
       return (
-        <View
+        <TextInput
           style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center'
+            height: 40,
+            borderColor: 'gray',
+            borderWidth: 1,
+            padding: 10
           }}
-        >
-          <TextInput
-            style={{ height: 40, borderColor: 'gray', borderWidth: 1, flex: 8 }}
-            placeholder="please enter your name"
-            onChangeText={text => this.setState({ edittedName: text })}
-            value={this.state.edittedName}
-          />
-          <TouchableOpacity
-            onPress={() => {
-              console.log(this.state.name)
-              return stored
-                .set('name', this.state.edittedName)
-                .save()
-                .then(() => {
-                  return this.query('changeName', this.state.edittedName)
-                })
-                .then(this.getGroupState)
-                .then(res => {
-                  this.setState({ editName: null })
-                })
-            }}
-          >
-            <Text>Save</Text>
-          </TouchableOpacity>
-        </View>
+          placeholder="please enter your name"
+          onChangeText={text => this.setState({ edittedName: text })}
+          onSubmitEditing={() => {
+            return stored
+              .set('name', this.state.edittedName)
+              .save()
+              .then(() => {
+                return this.query('changeName', this.state.edittedName)
+              })
+              .then(this.getGroupState)
+              .then(res => {
+                this.setState({ editName: null })
+              })
+          }}
+          returnKeyType="send"
+          value={this.state.edittedName}
+        />
       )
     } else {
       return (
@@ -279,7 +272,7 @@ export default class Everything extends Component {
               fontSize: 100
             }}
           >
-            →
+            ≫
           </Text>
         </TouchableOpacity>
       </View>
