@@ -94,7 +94,7 @@ export default class Everything extends Component {
         return res
       })
       .catch(e => {
-        if (attempts++ >= 0) {
+        if (attempts++ >= 100) {
           this.setState({
             error: 'something went terribly wrong, please restart the application'
           })
@@ -163,6 +163,7 @@ export default class Everything extends Component {
                 .then(() => {
                   return this.query('changeName', this.state.edittedName)
                 })
+                .then(this.getGroupState)
                 .then(res => {
                   this.setState({ editName: null })
                 })
@@ -192,7 +193,7 @@ export default class Everything extends Component {
             style={{ fontSize: 20 }}
             onPress={() => this.setState({ showQr: true })}
           >
-            join/leave
+            help?
           </Text>
 
         </View>
@@ -213,7 +214,7 @@ export default class Everything extends Component {
     )
   }
 
-  renderError () {
+  renderFatalError () {
     if (this.state.error) {
       return (
         <View
@@ -225,7 +226,7 @@ export default class Everything extends Component {
             }
           ]}
         >
-          <Text onPress={() => this.setState({ error: null })}>
+          <Text>
             {this.state.error}
           </Text>
         </View>
@@ -321,7 +322,7 @@ export default class Everything extends Component {
         }}
       >
         <Text style={{ color: textColor, fontSize: 18 }}>
-          {item.name || item.UUID}
+          {item.name || 'UNKNOWN'}
         </Text>
         <Text style={{ color: textColor, fontSize: 18 }}>
           {addedToday}/{addedTotal}
@@ -417,7 +418,7 @@ export default class Everything extends Component {
 
   render () {
     if (this.state.error) {
-      return this.renderError()
+      return this.renderFatalError()
     }
 
     if ((!this.state.loaded || this.state.spinner) && !this.state.refreshing) {
