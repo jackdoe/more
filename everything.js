@@ -351,28 +351,29 @@ export default class Everything extends Component {
 
   renderGroupQRCode () {
     return (
-      <View style={{ flex: 1, paddingTop: 40 }}>
-        <Text style={{ padding: 10 }}>
+      <View style={{ flex: 1, paddingTop: 40, padding: 20 }}>
+        <Text>
           Anyone who scans this qr code will join your current group.
         </Text>
-        <Text style={{ padding: 10 }}>
+        <Text style={{ paddingTop: 10 }}>
           Scan anybody's code to join their group.
         </Text>
         <View
           style={{
+            paddingTop: 10,
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center'
           }}
         >
           <Text
-            style={{ padding: 10, fontSize: 20 }}
+            style={{ fontSize: 20 }}
             onPress={() => this.setState({ showQr: false })}
           >
             [ Go Back ]
           </Text>
           <Text
-            style={{ padding: 10, fontSize: 20 }}
+            style={{ fontSize: 20 }}
             onPress={() => {
               return this.query('changeGroup', 'no-uuid')
                 .then(this.getGroupState)
