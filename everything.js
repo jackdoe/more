@@ -366,8 +366,11 @@ export default class Everything extends Component {
             alignItems: 'center'
           }}
           onBarCodeRead={data => {
-            console.log(data)
-            this.setState({ showCamera: false })
+            return this.query('changeGroup', data.data)
+              .then(this.getGroupState)
+              .then(() => {
+                this.setState({ showCamera: false })
+              })
           }}
           aspect={Camera.constants.Aspect.fill}
         />
