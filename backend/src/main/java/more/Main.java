@@ -17,6 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import more.Main.User.Event;
 
 public class Main {
@@ -76,6 +77,7 @@ public class Main {
   public static final File STORED_DB_FILE = new File("/tmp/db.json");
 
   public static void store() {
+    System.out.println("storing");
     try {
       mapper.writeValue(STORED_DB_FILE, db);
     } catch (Exception e) {
@@ -86,7 +88,7 @@ public class Main {
   private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
   public static void main(String[] args) throws Exception {
-
+    AtomicInteger changed = new AtomicInteger(0);
     Runtime.getRuntime()
         .addShutdownHook(
             new Thread() {
@@ -99,12 +101,12 @@ public class Main {
         new Runnable() {
           @Override
           public void run() {
-            store();
+            if (changed.getAndDecrement() > 0) store();
           }
         },
         1,
         1,
-        TimeUnit.HOURS);
+        TimeUnit.SECONDS);
 
     if (STORED_DB_FILE.exists()) {
       TypeReference<ConcurrentHashMap<String, User>> typeRef =
@@ -123,6 +125,7 @@ public class Main {
             db.put(u.UUID, u);
           }
 
+          changed.getAndIncrement();
           return mapper.writeValueAsString(u);
         });
 
@@ -139,6 +142,7 @@ public class Main {
 
           u.name = req.params(":name");
 
+          changed.getAndIncrement();
           return mapper.writeValueAsString(u);
         });
 
@@ -161,6 +165,7 @@ public class Main {
 
           u.groupUUID = gid.toString();
 
+          changed.getAndIncrement();
           return mapper.writeValueAsString(u);
         });
 
@@ -179,6 +184,7 @@ public class Main {
           e.value = Long.parseLong(req.params(":value"));
           u.addEvent(e);
 
+          changed.getAndIncrement();
           return "{\"success\":true}";
         });
 
