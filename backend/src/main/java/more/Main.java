@@ -101,7 +101,11 @@ public class Main {
         new Runnable() {
           @Override
           public void run() {
-            if (changed.getAndDecrement() > 0) store();
+            int v = changed.get();
+            if (v > 0) {
+              store();
+              changed.decrementAndGet();
+            }
           }
         },
         1,
