@@ -1,6 +1,7 @@
 package more;
 
 import static spark.Spark.get;
+import static spark.Spark.port;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -110,7 +111,7 @@ public class Main {
           new TypeReference<ConcurrentHashMap<String, User>>() {};
       db = mapper.readValue(STORED_DB_FILE, typeRef);
     }
-
+    port(4568);
     get(
         "/makeUser/:uuid",
         (req, res) -> {
