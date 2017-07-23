@@ -77,7 +77,6 @@ export default class Everything extends Component {
     let uuid = stored.get('uuid')
     let path =
       'https://more.run/' + endpoint + '/' + uuid + (arg ? '/' + arg : '')
-    console.log(path)
     attempts = attempts || 0
     return fetch(path, {
       method: 'GET',
