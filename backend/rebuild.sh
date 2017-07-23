@@ -1,6 +1,6 @@
 #!/bin/bash
 base=`dirname $0`
-sudo docker kill $(sudo docker ps | grep 4567 | cut -f 1 -d ' ') # no memory for everything :)
+sudo docker kill $(sudo docker ps | grep 4568 | cut -f 1 -d ' ') # no memory for everything :)
 
 mvn clean package
 sudo docker build . -t more
