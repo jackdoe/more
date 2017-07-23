@@ -76,7 +76,7 @@ export default class Everything extends Component {
     this.setState({ spinner: true })
     let uuid = stored.get('uuid')
     let path =
-      'http://localhost:4567/' + endpoint + '/' + uuid + (arg ? '/' + arg : '')
+      'https://more.run/' + endpoint + '/' + uuid + (arg ? '/' + arg : '')
     console.log(path)
     attempts = attempts || 0
     return fetch(path, {
