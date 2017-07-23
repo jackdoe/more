@@ -258,7 +258,7 @@ export default class Everything extends Component {
         <Text>{'        '}</Text>
         <TouchableOpacity
           onPress={() => {
-            if (this.state.currentValue > 0) {
+            if (this.state.currentValue != 0) {
               this.query('addEvent', this.state.currentValue).then(() => {
                 this.setState({ currentValue: 0 })
                 return this.getGroupState()
