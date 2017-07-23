@@ -262,7 +262,7 @@ export default class Everything extends Component {
             {this.state.currentValue}
           </Text>
         </TouchableOpacity>
-        <Text>{'    '}</Text>
+        <Text>{'        '}</Text>
         <TouchableOpacity
           onPress={() => {
             if (this.state.currentValue > 0) {
@@ -279,7 +279,7 @@ export default class Everything extends Component {
               fontSize: 100
             }}
           >
-            &gt;
+            →
           </Text>
         </TouchableOpacity>
       </View>
