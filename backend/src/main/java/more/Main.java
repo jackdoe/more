@@ -1,5 +1,6 @@
 package more;
 
+import static spark.Spark.before;
 import static spark.Spark.get;
 import static spark.Spark.port;
 
@@ -194,6 +195,11 @@ public class Main {
       db = mapper.readValue(STORED_DB_FILE, typeRef);
     }
     port(4568);
+    before(
+        (req, res) -> {
+          System.out.println(req.pathInfo());
+        });
+
     get(
         "/makeUser/:uuid",
         (req, res) -> {
