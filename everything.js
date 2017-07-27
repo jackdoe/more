@@ -132,10 +132,13 @@ export default class Everything extends Component {
           .then(this.getGroupState)
           .then(() => {
             PushNotification.configure({
-              onRegister: function (token) {
-                this.query('setDeviceId' + Platform.OS)
+              onRegister: token => {
+                this.query(
+                  'setDeviceId' + (Platform.OS === 'ios' ? 'iOS' : 'Android'),
+                  token
+                )
               },
-
+              senderID: 'more',
               onNotification: function (notification) {},
               permissions: {
                 alert: true,

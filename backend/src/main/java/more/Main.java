@@ -33,7 +33,6 @@ public class Main {
 
   public static class FCMNotification {
 
-    // Method to send Notifications from server to client end.
     public static final String AUTH_KEY_FCM = System.getenv("KEY_FCM");
     public static final String API_URL_FCM = "https://fcm.googleapis.com/fcm/send";
 
@@ -44,7 +43,7 @@ public class Main {
 
     public static void pushFCMNotification(String DeviceIdKey, String title) throws Exception {
 
-      String authKey = AUTH_KEY_FCM; // You FCM AUTH key
+      String authKey = AUTH_KEY_FCM;
       String FMCurl = API_URL_FCM;
 
       URL url = new URL(FMCurl);
@@ -265,7 +264,7 @@ public class Main {
                           String.format(
                               "%s %s%d", u.name, e.value > 0 ? "+" : "-", Math.abs(e.value));
                       if (user.platform == Platform.iOS) {
-                        apns.push(title, u.deviceId);
+                        apns.push(APNS.newPayload().alertBody(title).build(), u.deviceId);
                       } else {
                         FCMNotification.pushFCMNotification(u.deviceId, title);
                       }
