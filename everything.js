@@ -133,12 +133,13 @@ export default class Everything extends Component {
           .then(() => {
             PushNotification.configure({
               onRegister: token => {
+                console.log(token)
                 this.query(
                   'setDeviceId' + (Platform.OS === 'ios' ? 'iOS' : 'Android'),
                   token.token
                 )
               },
-              senderID: 'more',
+              senderID: '71396173821',
               onNotification: function (notification) {},
               permissions: {
                 alert: true,

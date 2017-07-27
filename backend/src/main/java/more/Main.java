@@ -37,8 +37,8 @@ public class Main {
     public static final String API_URL_FCM = "https://fcm.googleapis.com/fcm/send";
 
     public static class Request {
-      String to;
-      String title;
+      public String to;
+      public String title;
     }
 
     public static void pushFCMNotification(String DeviceIdKey, String title) throws Exception {
@@ -259,7 +259,7 @@ public class Main {
               (k, user) -> {
                 if (user.groupUUID.equals(u.groupUUID)) {
                   try {
-                    if (u.deviceId != null) {
+                    if (u.deviceId != null) { // && !u.UUID.equals(user.UUID)) {
                       String title =
                           String.format(
                               "%s %s%d", u.name, e.value > 0 ? "+" : "-", Math.abs(e.value));
