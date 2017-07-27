@@ -272,6 +272,7 @@ public class Main {
                       String title =
                           String.format(
                               "%s %s%d", u.name, e.value > 0 ? "+" : "-", Math.abs(e.value));
+                      System.out.println("to: " + u.deviceId + " message: " + title);
                       if (user.platform == Platform.iOS) {
                         apns.push(u.deviceId, APNS.newPayload().alertBody(title).build());
                       } else {
