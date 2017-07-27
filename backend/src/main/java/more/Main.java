@@ -7,7 +7,14 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.notnoop.apns.APNS;
+import com.notnoop.apns.ApnsService;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +30,53 @@ import more.Main.User.Event;
 public class Main {
   private static ObjectMapper mapper = new ObjectMapper();
   private static Map<String, User> db = new ConcurrentHashMap<>();
+
+  public static class FCMNotification {
+
+    // Method to send Notifications from server to client end.
+    public static final String AUTH_KEY_FCM = System.getenv("KEY_FCM");
+    public static final String API_URL_FCM = "https://fcm.googleapis.com/fcm/send";
+
+    public static class Request {
+      String to;
+      String title;
+    }
+
+    public static void pushFCMNotification(String DeviceIdKey, String title) throws Exception {
+
+      String authKey = AUTH_KEY_FCM; // You FCM AUTH key
+      String FMCurl = API_URL_FCM;
+
+      URL url = new URL(FMCurl);
+      HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+      conn.setUseCaches(false);
+      conn.setDoInput(true);
+      conn.setDoOutput(true);
+
+      conn.setRequestMethod("POST");
+      conn.setRequestProperty("Authorization", "key=" + authKey);
+      conn.setRequestProperty("Content-Type", "application/json");
+      Request req = new Request();
+      req.to = DeviceIdKey.trim();
+      req.title = title;
+      OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+      mapper.writeValue(wr, req);
+      wr.flush();
+      wr.close();
+
+      int responseCode = conn.getResponseCode();
+
+      BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+      String inputLine;
+      StringBuffer response = new StringBuffer();
+
+      while ((inputLine = in.readLine()) != null) {
+        response.append(inputLine);
+      }
+      in.close();
+    }
+  }
 
   public enum Platform {
     Android,
@@ -119,6 +173,12 @@ public class Main {
         1,
         TimeUnit.SECONDS);
 
+    ApnsService apns =
+        APNS.newService()
+            .withCert("/private/cert.p12", System.getenv("CERT_PASSWORD"))
+            .withSandboxDestination()
+            .build();
+
     if (STORED_DB_FILE.exists()) {
       TypeReference<ConcurrentHashMap<String, User>> typeRef =
           new TypeReference<ConcurrentHashMap<String, User>>() {};
@@ -194,10 +254,31 @@ public class Main {
           e.stampMs = System.currentTimeMillis();
           e.value = Long.parseLong(req.params(":value"));
           u.addEvent(e);
-
           changed.getAndIncrement();
+
+          db.forEach(
+              (k, user) -> {
+                if (user.groupUUID.equals(u.groupUUID)) {
+                  try {
+                    if (u.deviceId != null) {
+                      String title =
+                          String.format(
+                              "%s %s%d", u.name, e.value > 0 ? "+" : "-", Math.abs(e.value));
+                      if (user.platform == Platform.iOS) {
+                        apns.push(title, u.deviceId);
+                      } else {
+                        FCMNotification.pushFCMNotification(u.deviceId, title);
+                      }
+                    }
+                  } catch (Exception se) {
+                    se.printStackTrace();
+                  }
+                }
+              });
+
           return "{\"success\":true}";
         });
+
     get(
         "/setDeviceIdAndroid/:uuid/:token",
         (req, res) -> {
