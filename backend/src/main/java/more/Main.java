@@ -81,6 +81,7 @@ public class Main {
       while ((inputLine = in.readLine()) != null) {
         response.append(inputLine);
       }
+      System.out.println(response);
       in.close();
       conn.disconnect();
     }
@@ -254,30 +255,36 @@ public class Main {
           res.status(200);
           res.type("application/json");
 
-          User u = db.get(req.params(":uuid"));
-          if (u == null) {
+          User whoami = db.get(req.params(":uuid"));
+          if (whoami == null) {
             throw new IllegalStateException("user not found");
           }
           Event e = new Event();
           e.stampMs = System.currentTimeMillis();
           e.value = Long.parseLong(req.params(":value"));
-          u.addEvent(e);
+          whoami.addEvent(e);
           changed.getAndIncrement();
 
           db.forEach(
               (k, user) -> {
-                if (user.groupUUID.equals(u.groupUUID)) {
+                if (user.groupUUID.equals(whoami.groupUUID)) {
                   try {
-                    if (u.deviceId != null) { // && !u.UUID.equals(user.UUID)) {
+                    if (user.deviceId != null) { // && !u.UUID.equals(user.UUID)) {
                       String title =
                           String.format(
-                              "%s %s%d", u.name, e.value > 0 ? "+" : "-", Math.abs(e.value));
+                              "%s %s%d", whoami.name, e.value > 0 ? "+" : "-", Math.abs(e.value));
                       System.out.println(
-                          "to: " + u.deviceId + "(" + u.platform + ")" + " message: " + title);
+                          "to: "
+                              + user.deviceId
+                              + "("
+                              + user.platform
+                              + ")"
+                              + " message: "
+                              + title);
                       if (user.platform == Platform.iOS) {
-                        apns.push(u.deviceId, APNS.newPayload().alertBody(title).build());
+                        apns.push(user.deviceId, APNS.newPayload().alertBody(title).build());
                       } else {
-                        FCMNotification.pushFCMNotification(u.deviceId, title);
+                        FCMNotification.pushFCMNotification(user.deviceId, title);
                       }
                     }
                   } catch (Exception se) {
