@@ -269,7 +269,7 @@ public class Main {
               (k, user) -> {
                 if (user.groupUUID.equals(whoami.groupUUID)) {
                   try {
-                    if (user.deviceId != null) { // && !u.UUID.equals(user.UUID)) {
+                    if (user.deviceId != null && !whoami.UUID.equals(user.UUID)) {
                       String title =
                           String.format(
                               "%s %s%d", whoami.name, e.value > 0 ? "+" : "-", Math.abs(e.value));
