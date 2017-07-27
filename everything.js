@@ -8,11 +8,13 @@ import {
   TextInput,
   TouchableOpacity,
   Text,
+  Platform,
   View
 } from 'react-native'
 import QRCode from 'react-native-qrcode'
 import Camera from 'react-native-camera'
 var randomColor = require('randomcolor') // import the script
+var PushNotification = require('react-native-push-notification')
 
 class StoredState {
   constructor (params) {
@@ -77,6 +79,8 @@ export default class Everything extends Component {
     let uuid = stored.get('uuid')
     let path =
       'https://more.run/' + endpoint + '/' + uuid + (arg ? '/' + arg : '')
+
+    console.log(path)
     attempts = attempts || 0
     return fetch(path, {
       method: 'GET',
@@ -127,6 +131,22 @@ export default class Everything extends Component {
           .save()
           .then(this.getGroupState)
           .then(() => {
+            PushNotification.configure({
+              onRegister: function (token) {
+                this.query('setDeviceId' + Platform.OS)
+              },
+
+              onNotification: function (notification) {},
+              permissions: {
+                alert: true,
+                badge: false,
+                sound: false
+              },
+
+              popInitialNotification: true,
+              requestPermissions: true
+            })
+
             this.setState({
               loaded: true,
               edittedName: stored.get('name'),
@@ -147,9 +167,9 @@ export default class Everything extends Component {
             borderWidth: 1,
             padding: 10
           }}
-          underlineColorAndroid="transparent"
+          underlineColorAndroid='transparent'
           autoFocus
-          placeholder="please enter your name"
+          placeholder='please enter your name'
           onChangeText={text => this.setState({ edittedName: text })}
           onSubmitEditing={() => {
             return stored
@@ -163,7 +183,7 @@ export default class Everything extends Component {
                 this.setState({ editName: null })
               })
           }}
-          returnKeyType="send"
+          returnKeyType='send'
           value={this.state.edittedName}
         />
       )
@@ -403,8 +423,8 @@ export default class Everything extends Component {
           <QRCode
             value={stored.get('groupUUID')}
             size={200}
-            bgColor="purple"
-            fgColor="white"
+            bgColor='purple'
+            fgColor='white'
           />
         </View>
       </View>

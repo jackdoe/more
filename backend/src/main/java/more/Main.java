@@ -24,10 +24,17 @@ public class Main {
   private static ObjectMapper mapper = new ObjectMapper();
   private static Map<String, User> db = new ConcurrentHashMap<>();
 
+  public enum Platform {
+    Android,
+    iOS;
+  }
+
   public static class User {
     public String UUID;
     public String groupUUID;
     public String name;
+    public String deviceId;
+    public Platform platform;
     public List<Event> events;
 
     @JsonCreator
@@ -191,7 +198,32 @@ public class Main {
           changed.getAndIncrement();
           return "{\"success\":true}";
         });
+    get(
+        "/setDeviceIdAndroid/:uuid/:token",
+        (req, res) -> {
+          res.status(200);
 
+          User u = db.get(req.params(":uuid"));
+          if (u != null) {
+            u.platform = Platform.Android;
+            u.deviceId = req.params(":token");
+          }
+
+          return "{\"success\":true}";
+        });
+    get(
+        "/setDeviceIdiOS/:uuid/:token",
+        (req, res) -> {
+          res.status(200);
+
+          User u = db.get(req.params(":uuid"));
+          if (u != null) {
+            u.platform = Platform.iOS;
+            u.deviceId = req.params(":token");
+          }
+
+          return "{\"success\":true}";
+        });
     get(
         "/get/:uuid",
         (req, res) -> {

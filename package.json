@@ -11,6 +11,7 @@
     "react": "16.0.0-alpha.12",
     "react-native": "0.46.4",
     "react-native-camera": "git+https://github.com/lwansbrough/react-native-camera.git",
+    "react-native-push-notification": "^3.0.0",
     "react-native-qrcode": "^0.2.3",
     "react-navigation": "^1.0.0-beta.11"
   },
