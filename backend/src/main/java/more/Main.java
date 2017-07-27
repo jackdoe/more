@@ -37,8 +37,18 @@ public class Main {
     public static final String API_URL_FCM = "https://fcm.googleapis.com/fcm/send";
 
     public static class Request {
+      public static class Data {
+        public String message;
+      }
+
       public String to;
-      public String title;
+      public Data data;
+
+      public Request(String to, String message) {
+        this.to = to;
+        this.data = new Data();
+        this.data.message = message;
+      }
     }
 
     public static void pushFCMNotification(String DeviceIdKey, String title) throws Exception {
@@ -56,9 +66,7 @@ public class Main {
       conn.setRequestMethod("POST");
       conn.setRequestProperty("Authorization", "key=" + authKey);
       conn.setRequestProperty("Content-Type", "application/json");
-      Request req = new Request();
-      req.to = DeviceIdKey.trim();
-      req.title = title;
+      Request req = new Request(DeviceIdKey, title);
       OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
       mapper.writeValue(wr, req);
       wr.flush();
@@ -74,6 +82,7 @@ public class Main {
         response.append(inputLine);
       }
       in.close();
+      conn.disconnect();
     }
   }
 
