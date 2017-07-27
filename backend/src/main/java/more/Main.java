@@ -264,7 +264,7 @@ public class Main {
                           String.format(
                               "%s %s%d", u.name, e.value > 0 ? "+" : "-", Math.abs(e.value));
                       if (user.platform == Platform.iOS) {
-                        apns.push(APNS.newPayload().alertBody(title).build(), u.deviceId);
+                        apns.push(u.deviceId, APNS.newPayload().alertBody(title).build());
                       } else {
                         FCMNotification.pushFCMNotification(u.deviceId, title);
                       }
