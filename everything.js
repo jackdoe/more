@@ -135,7 +135,7 @@ export default class Everything extends Component {
               onRegister: token => {
                 this.query(
                   'setDeviceId' + (Platform.OS === 'ios' ? 'iOS' : 'Android'),
-                  token
+                  token.token
                 )
               },
               senderID: 'more',
