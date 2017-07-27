@@ -9,10 +9,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.notnoop.apns.APNS;
 import com.notnoop.apns.ApnsService;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -59,30 +57,20 @@ public class Main {
       URL url = new URL(FMCurl);
       HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
-      conn.setUseCaches(false);
-      conn.setDoInput(true);
-      conn.setDoOutput(true);
+      HttpURLConnection httpcon =
+          (HttpURLConnection) ((new URL("https://fcm.googleapis.com/fcm/send").openConnection()));
+      httpcon.setDoOutput(true);
+      httpcon.setRequestProperty("Content-Type", "application/json");
+      httpcon.setRequestProperty("Authorization", "key=" + authKey);
+      httpcon.setRequestMethod("POST");
+      httpcon.connect();
 
-      conn.setRequestMethod("POST");
-      conn.setRequestProperty("Authorization", "key=" + authKey);
-      conn.setRequestProperty("Content-Type", "application/json");
+      OutputStream os = httpcon.getOutputStream();
       Request req = new Request(DeviceIdKey, title);
-      OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-      mapper.writeValue(wr, req);
-      wr.flush();
-      wr.close();
 
-      int responseCode = conn.getResponseCode();
-
-      BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-      String inputLine;
-      StringBuffer response = new StringBuffer();
-
-      while ((inputLine = in.readLine()) != null) {
-        response.append(inputLine);
-      }
-      in.close();
-      conn.disconnect();
+      mapper.writeValue(os, req);
+      os.close();
+      httpcon.disconnect();
     }
   }
 
