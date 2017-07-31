@@ -60,7 +60,7 @@ class StoredState {
 
 const stored = new StoredState({ name: 'state' })
 
-export default class Everything extends Component {
+class Everything extends Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -464,3 +464,8 @@ var styles = StyleSheet.create({
     paddingTop: 40
   }
 })
+
+import codePush from "react-native-code-push";
+everything = codePush(everything);
+export default everything
+
