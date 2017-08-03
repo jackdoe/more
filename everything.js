@@ -466,6 +466,6 @@ var styles = StyleSheet.create({
 })
 
 import codePush from "react-native-code-push";
-everything = codePush(everything);
-export default everything
+Everything = codePush(Everything);
+export default Everything
 

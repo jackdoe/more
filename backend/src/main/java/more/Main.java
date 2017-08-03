@@ -186,7 +186,6 @@ public class Main {
     ApnsService apns =
         APNS.newService()
             .withCert("/private/cert.p12", System.getenv("CERT_PASSWORD"))
-            .withSandboxDestination()
             .build();
 
     if (STORED_DB_FILE.exists()) {
