@@ -8,8 +8,13 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.notnoop.apns.APNS;
-import com.notnoop.apns.ApnsService;
+import com.turo.pushy.apns.ApnsClient;
+import com.turo.pushy.apns.ApnsClientBuilder;
+import com.turo.pushy.apns.ClientNotConnectedException;
+import com.turo.pushy.apns.PushNotificationResponse;
+import com.turo.pushy.apns.util.ApnsPayloadBuilder;
+import com.turo.pushy.apns.util.SimpleApnsPushNotification;
+import com.turo.pushy.apns.util.TokenUtil;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
@@ -23,6 +28,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -158,6 +164,54 @@ public class Main {
 
   private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
+  public static SimpleApnsPushNotification makeNotification(String spayload, String stoken) {
+    final ApnsPayloadBuilder payloadBuilder = new ApnsPayloadBuilder();
+    payloadBuilder.setAlertBody(spayload);
+
+    final String payload = payloadBuilder.buildWithDefaultMaximumLength();
+    final String token = TokenUtil.sanitizeTokenString(stoken);
+
+    return new SimpleApnsPushNotification(token, "more.run", payload);
+  }
+
+  public static void sendNotification(
+      SimpleApnsPushNotification pushNotification, ApnsClient apnsClient) {
+    final Future<PushNotificationResponse<SimpleApnsPushNotification>> sendNotificationFuture =
+        apnsClient.sendNotification(pushNotification);
+    try {
+      final PushNotificationResponse<SimpleApnsPushNotification> pushNotificationResponse =
+          sendNotificationFuture.get();
+
+      if (pushNotificationResponse.isAccepted()) {
+        System.out.println("Push notification accepted by APNs gateway.");
+      } else {
+        System.out.println(
+            "Notification rejected by the APNs gateway: "
+                + pushNotificationResponse.getRejectionReason());
+
+        if (pushNotificationResponse.getTokenInvalidationTimestamp() != null) {
+          System.out.println(
+              "\t…and the token is invalid as of "
+                  + pushNotificationResponse.getTokenInvalidationTimestamp());
+        }
+      }
+    } catch (final Exception e) {
+      System.err.println("Failed to send push notification.");
+      e.printStackTrace();
+
+      if (e.getCause() instanceof ClientNotConnectedException) {
+        System.out.println("Waiting for client to reconnect…");
+        System.out.println("Reconnected.");
+
+        try {
+          apnsClient.getReconnectionFuture().await();
+        } catch (Exception ee) {
+          ee.printStackTrace();
+        }
+      }
+    }
+  }
+
   public static void main(String[] args) throws Exception {
     AtomicInteger changed = new AtomicInteger(0);
     Runtime.getRuntime()
@@ -183,10 +237,11 @@ public class Main {
         1,
         TimeUnit.SECONDS);
 
-    ApnsService apns =
-        APNS.newService()
-            .withCert("/private/cert.p12", System.getenv("CERT_PASSWORD"))
+    final ApnsClient apnsClient =
+        new ApnsClientBuilder()
+            .setClientCredentials(new File("/private/cert.p12"), System.getenv("CERT_PASSWORD"))
             .build();
+    final Future<Void> connectFuture = apnsClient.connect(ApnsClient.PRODUCTION_APNS_HOST);
 
     if (STORED_DB_FILE.exists()) {
       TypeReference<ConcurrentHashMap<String, User>> typeRef =
@@ -287,7 +342,7 @@ public class Main {
                               + " message: "
                               + title);
                       if (user.platform == Platform.iOS) {
-                        apns.push(user.deviceId, APNS.newPayload().alertBody(title).build());
+                        sendNotification(makeNotification(title, user.deviceId), apnsClient);
                       } else {
                         FCMNotification.pushFCMNotification(user.deviceId, title);
                       }
