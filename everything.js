@@ -354,7 +354,7 @@ class Everything extends Component {
           key={item}
           style={{ color: textColor, fontSize: 16, paddingRight: 5 }}
         >
-          {addedToday[item]}/{addedTotal[item]}@{item}
+          {addedToday[item] || 0}/{addedTotal[item] || 0}@{item}
         </Text>
       )
     }
