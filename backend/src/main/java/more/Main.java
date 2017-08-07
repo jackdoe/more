@@ -132,6 +132,7 @@ public class Main {
     public static class Event {
       public long value;
       public long stampMs;
+      public long type;
     }
 
     @Override
@@ -321,7 +322,11 @@ public class Main {
           }
           Event e = new Event();
           e.stampMs = System.currentTimeMillis();
-          e.value = Long.parseLong(req.params(":value"));
+          String[] splitted = req.params(":value").split("_");
+          e.value = Long.parseLong(splitted[0]);
+          if (splitted.length == 2) {
+            e.type = Long.parseLong(splitted[1]);
+          }
           whoami.addEvent(e);
           changed.getAndIncrement();
 

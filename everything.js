@@ -290,7 +290,6 @@ class Everything extends Component {
             }
           }}
         >
-
           <Text
             style={{
               fontSize: 100
@@ -299,23 +298,46 @@ class Everything extends Component {
             ≫
           </Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => {
+            if (this.state.currentValue != 0) {
+              this.query(
+                'addEvent',
+                this.state.currentValue + '_1'
+              ).then(() => {
+                this.setState({ currentValue: 0 })
+                return this.getGroupState()
+              })
+            }
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 100
+            }}
+          >
+            ≪
+          </Text>
+        </TouchableOpacity>
       </View>
     )
   }
 
   renderGroupItem (item) {
-    let addedToday = 0
-    let addedTotal = 0
+    let addedToday = {}
+    let addedTotal = {}
     let daySinceEpoch = function (d) {
       return Math.floor(d / 1000 / (3600 * 24))
     }
     let now = daySinceEpoch(new Date().getTime())
     for (let event of item.events) {
       if (!event) continue
+      let type = event.type || 0
       if (daySinceEpoch(event.stampMs) === now) {
-        addedToday += event.value
+        addedToday[type] = (addedToday[type] || 0) + event.value
       }
-      addedTotal += event.value
+      addedTotal[type] = (addedTotal[type] || 0) + event.value
     }
     let me = item.UUID === stored.get('uuid')
     let backgroundColor = randomColor({
@@ -325,7 +347,17 @@ class Everything extends Component {
     })
 
     let textColor = me ? 'black' : 'white'
-
+    let texts = []
+    for (let item of Object.keys(addedTotal).sort()) {
+      texts.push(
+        <Text
+          key={item}
+          style={{ color: textColor, fontSize: 18, paddingLeft: 10 }}
+        >
+          {addedToday[item]}/{addedTotal[item]}@{item}
+        </Text>
+      )
+    }
     return (
       <View
         key={item.UUID}
@@ -341,9 +373,15 @@ class Everything extends Component {
         <Text style={{ color: textColor, fontSize: 18 }}>
           {item.name || 'UNKNOWN'}
         </Text>
-        <Text style={{ color: textColor, fontSize: 18 }}>
-          {addedToday}/{addedTotal}
-        </Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+            paddingRight: 10
+          }}
+        >
+          {texts}
+        </View>
       </View>
     )
   }
@@ -465,7 +503,6 @@ var styles = StyleSheet.create({
   }
 })
 
-import codePush from "react-native-code-push";
-Everything = codePush(Everything);
+import codePush from 'react-native-code-push'
+Everything = codePush(Everything)
 export default Everything
-
