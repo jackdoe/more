@@ -374,6 +374,7 @@ class Everything extends Component {
           style={{
             color: textColor,
             fontSize: 18,
+            paddingLeft: 5,
             width: 80,
             flexWrap: 'wrap'
           }}
