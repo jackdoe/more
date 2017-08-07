@@ -352,7 +352,7 @@ class Everything extends Component {
       texts.push(
         <Text
           key={item}
-          style={{ color: textColor, fontSize: 18, paddingLeft: 10 }}
+          style={{ color: textColor, fontSize: 16, paddingRight: 5 }}
         >
           {addedToday[item]}/{addedTotal[item]}@{item}
         </Text>
@@ -366,18 +366,25 @@ class Everything extends Component {
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: 20,
           backgroundColor: backgroundColor
         }}
       >
-        <Text style={{ color: textColor, fontSize: 18 }}>
+        <Text
+          numberOfLines={1}
+          style={{
+            color: textColor,
+            fontSize: 18,
+            width: 80,
+            flexWrap: 'wrap'
+          }}
+        >
           {item.name || 'UNKNOWN'}
         </Text>
         <View
           style={{
             flexDirection: 'row',
-            justifyContent: 'flex-end',
-            paddingRight: 10
+            justifyContent: 'center',
+            padding: 10
           }}
         >
           {texts}
