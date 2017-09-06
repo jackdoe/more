@@ -80,7 +80,6 @@ class Everything extends Component {
     let path =
       'https://more.run/' + endpoint + '/' + uuid + (arg ? '/' + arg : '')
 
-    console.log(path)
     attempts = attempts || 0
     return fetch(path, {
       method: 'GET',
@@ -526,6 +525,13 @@ var styles = StyleSheet.create({
   }
 })
 
+const codePushOptions = {
+  checkFrequency: codePush.CheckFrequency.ON_APP_RESUME
+}
+
 import codePush from 'react-native-code-push'
-Everything = codePush(Everything)
+const codePushOptions = {
+  checkFrequency: codePush.CheckFrequency.ON_APP_RESUME
+}
+Everything = codePush(codePushOptions)(Everything)
 export default Everything
