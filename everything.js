@@ -261,26 +261,6 @@ class Everything extends Component {
         }}
       >
         <TouchableOpacity
-          onPress={() =>
-            this.setState((prevState, props) => ({
-              currentValue: prevState.currentValue + 5
-            }))}
-          onLongPress={() =>
-            this.setState((prevState, props) => ({
-              currentValue: prevState.currentValue - 5
-            }))}
-        >
-
-          <Text
-            style={{
-              fontSize: 100
-            }}
-          >
-            {this.state.currentValue}
-          </Text>
-        </TouchableOpacity>
-        <Text>{'        '}</Text>
-        <TouchableOpacity
           onPress={() => {
             if (this.state.currentValue != 0) {
               this.query('addEvent', this.state.currentValue).then(() => {
@@ -298,6 +278,26 @@ class Everything extends Component {
             ≫
           </Text>
         </TouchableOpacity>
+        <Text>{'        '}</Text>
+        <TouchableOpacity
+          onPress={() =>
+            this.setState((prevState, props) => ({
+              currentValue: prevState.currentValue + 5
+            }))}
+          onLongPress={() =>
+            this.setState((prevState, props) => ({
+              currentValue: prevState.currentValue - 5
+            }))}
+        >
+          <Text
+            style={{
+              fontSize: 100
+            }}
+          >
+            {this.state.currentValue}
+          </Text>
+        </TouchableOpacity>
+        <Text>{'        '}</Text>
 
         <TouchableOpacity
           onPress={() => {
@@ -325,14 +325,17 @@ class Everything extends Component {
   }
 
   renderGroupItem (item) {
-    let addedToday = {}
-    let addedTotal = {}
+    let addedToday = { 0: 0, 1: 0 }
+    let addedTotal = { 0: 0, 1: 0 }
     let daySinceEpoch = function (d) {
       return Math.floor(d / 1000 / (3600 * 24))
     }
     let now = daySinceEpoch(new Date().getTime())
     for (let event of item.events) {
       if (!event) continue
+      // reset at Wed Sep 06 2017 21:11:31 GMT+0200 (CEST)
+      // because i am too far ahead and people are complaining
+      if (event.stampMs < 1504725058400) continue
       let type = event.type || 0
       if (daySinceEpoch(event.stampMs) === now) {
         addedToday[type] = (addedToday[type] || 0) + event.value
@@ -348,15 +351,32 @@ class Everything extends Component {
 
     let textColor = me ? 'black' : 'white'
     let texts = []
+    let left = <View />
+    let right = <View />
     for (let item of Object.keys(addedTotal).sort()) {
-      texts.push(
+      let today = addedToday[item] || 0
+      let total = addedTotal[item] || 0
+      let row = (
         <Text
           key={item}
-          style={{ color: textColor, fontSize: 16, paddingRight: 5 }}
+          numberOfLines={1}
+          style={{
+            flexWrap: 'wrap',
+            color: textColor,
+            fontSize: 16,
+            padding: 5,
+            textAlign: item === '0' ? 'left' : 'right',
+            flex: 1
+          }}
         >
-          {addedToday[item] || 0}/{addedTotal[item] || 0}@{item}
+          {today}/{total}
         </Text>
       )
+      if (item === '0') {
+        left = row
+      } else {
+        right = row
+      }
     }
     return (
       <View
@@ -369,27 +389,22 @@ class Everything extends Component {
           backgroundColor: backgroundColor
         }}
       >
+        {left}
         <Text
           numberOfLines={1}
           style={{
             color: textColor,
             fontSize: 18,
             paddingLeft: 5,
-            width: 80,
+            paddingRight: 5,
+            flex: 2,
+            textAlign: 'center',
             flexWrap: 'wrap'
           }}
         >
           {item.name || 'UNKNOWN'}
         </Text>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            paddingLeft: 10
-          }}
-        >
-          {texts}
-        </View>
+        {right}
       </View>
     )
   }
