@@ -98,7 +98,7 @@ android {
         applicationId "com.more"
         minSdkVersion 16
         targetSdkVersion 22
-        versionCode 13
+        versionCode 14
         versionName "1.4"
         multiDexEnabled true
         ndk {
