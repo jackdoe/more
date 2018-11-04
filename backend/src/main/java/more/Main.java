@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.turo.pushy.apns.ApnsClient;
 import com.turo.pushy.apns.ApnsClientBuilder;
-import com.turo.pushy.apns.ClientNotConnectedException;
 import com.turo.pushy.apns.PushNotificationResponse;
 import com.turo.pushy.apns.util.ApnsPayloadBuilder;
 import com.turo.pushy.apns.util.SimpleApnsPushNotification;
@@ -199,17 +198,6 @@ public class Main {
     } catch (final Exception e) {
       System.err.println("Failed to send push notification.");
       e.printStackTrace();
-
-      if (e.getCause() instanceof ClientNotConnectedException) {
-        System.out.println("Waiting for client to reconnect…");
-        System.out.println("Reconnected.");
-
-        try {
-          apnsClient.getReconnectionFuture().await();
-        } catch (Exception ee) {
-          ee.printStackTrace();
-        }
-      }
     }
   }
 
@@ -240,9 +228,10 @@ public class Main {
 
     final ApnsClient apnsClient =
         new ApnsClientBuilder()
+            .setApnsServer(ApnsClientBuilder.PRODUCTION_APNS_HOST)
             .setClientCredentials(new File("/private/cert.p12"), System.getenv("CERT_PASSWORD"))
             .build();
-    final Future<Void> connectFuture = apnsClient.connect(ApnsClient.PRODUCTION_APNS_HOST);
+    //final Future<Void> connectFuture = apnsClient.connect(ApnsClientBuilder.PRODUCTION_APNS_HOST);
 
     if (STORED_DB_FILE.exists()) {
       TypeReference<ConcurrentHashMap<String, User>> typeRef =
